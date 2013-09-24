@@ -1,8 +1,12 @@
 # !/bin/bash
 
-echo "----------------------------------"
-echo "|    Arch Linux Installation     |"
-echo "----------------------------------"
+echo "
+   _____                .__      .____    .__                      .___                 __         .__  .__   
+  /  _  \_______   ____ |  |__   |    |   |__| ____  __ _____  ___ |   | ____   _______/  |______  |  | |  |  
+ /  /_\  \_  __ \_/ ___\|  |  \  |    |   |  |/    \|  |  \  \/  / |   |/    \ /  ___/\   __\__  \ |  | |  |  
+/    |    \  | \/\  \___|   Y  \ |    |___|  |   |  \  |  />    <  |   |   |    ___ \  |  |  / __ \|  |_|  |__
+\____|__  /__|    \___  >___|  / |_______ \__|___|  /____//__/\_ \ |___|___|  /____  > |__| (____  /____/____/
+        \/            \/     \/          \/       \/            \/          \/     \/            \/           "
 
 echo ""
 
@@ -10,66 +14,41 @@ echo "Welcome to the Arch Linux Installation Script. To begin the installation, 
 
 read
 
-# Partitioning the Hard Drive
-# To accomplish this, we will be using fdisk, and echoing the desired partition
-# variables.
+echo ""
+echo "Starting the script ..."
+echo ""
 
-echo "Generating the partitions ..."
+echo -e "\e[91mApplying a file system to the partitions ..."
+echo ""
 
-# /dev/sda1 - Boot Partition
-
-echo "d"          >> fdisc.in   # Delete the other partitions
-echo "n"          >> fdisc.in   # Create a new partition
-echo "p"          >> fdisc.in   # Sets the partition as primary
-echo ""           >> fdisc.in   # Leave partition number default
-echo ""			  >> fdisc.in 	# Leave the partition beginning default
-echo "+8G"     	  >> fdisc.in   # Set the partition size
-echo "a"          >> fdisc.in   # Set the partition as bootable
-
-# /dev/sda2 - Swap Partition
-
-echo "n"          >> fdisc.in   # Create a new partition
-echo "p"          >> fdisc.in   # Sets the partition as primary
-echo ""           >> fdisc.in   # Leave partition number default
-echo ""			  >> fdisc.in 	# Leave the partition beginning default
-echo "+2048M"     >> fdisc.in   # Set the partition size
-echo "t"          >> fdisc.in   # Set as swap
-echo "2"          >> fdisc.in   # Set as swap
-echo "82"         >> fdisc.in   # Set as swap
-
-# /dev/sda3 - Root Partition
-
-echo "n"          >> fdisc.in   # Create a new partition
-echo "p"          >> fdisc.in   # Sets the partition as primary
-echo ""           >> fdisc.in   # Leave partition number default
-echo ""           >> fdisc.in   # The partition size is the rest of the HD
-echo ""           >> fdisc.in   # Leave as default
-
-# Creating the file system and installing the base system
-# We will have the execute the fdisk file, clean up
-# and mount the partitions to /dev/sda.
-
-echo "Executing fdisk and creating the partitions ..."
-
-fdisk /dev/sda < fdisc.in
-
-echo "Cleaning up the partition file ..."
-
-rm -f fdisc.in
-
-echo "Applying a file system to the partitions ..."
+echo "Applying a file system to /dev/sda1 ..."
+echo ""
 
 mkfs.ext4 /dev/sda1
+
+echo ""
+echo "Applying a file system to /dev/sda3 ..."
+echo ""
+
 mkfs.ext4 /dev/sda3
+
+echo ""
+echo "Creating the swap partition ..."
+echo ""
+
 mkswap /dev/sda2
 
+echo ""
 echo "Activating the swap partition ..."
+echo ""
 
 swapon /dev/sda2
 
+echo ""
 echo "Mounting the partitions ..."
+echo ""
 
-mount /dev/sda1 /mount
+mount /dev/sda1 /mnt
 mkdir /mnt/home
 mount /dev/sda3 /mnt/home
 
@@ -83,7 +62,7 @@ genfstab /mnt >> /mnt/etc/fstab
 
 echo ""
 echo "Please ensure that the fstab is OK!"
-sleep 3
+sleep 10
 
 nano /mnt/etc/fstab
 
@@ -96,9 +75,13 @@ arch-chroot /mnt
 
 echo "Setting a new root password ..."
 
+sleep 10
+
 passwd
 
 echo "Setting the locale ..."
+
+sleep 5
 
 nano /etc/locale.gen
 
@@ -106,7 +89,7 @@ echo "Generating the locale ..."
 
 locale-gen
 
-echo "Setting a hostname for your device ..."
+echo "Setting a hostname for your device ..."  
 
 read HOSTNAME
 
@@ -115,7 +98,7 @@ echo {HOSTNAME} > /etc/hostname
 # Installing GRUB as the bootloader
 
 echo "Installing GRUB as the bootloader ..."
-
+ 
 pacman -S grub-bios --noconfirm
 grub-install /dev/sda
 mkinitcpio -p linux
